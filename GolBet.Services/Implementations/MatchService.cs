@@ -19,9 +19,9 @@ public class MatchService : IMatchService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<MatchDto>> GetBoardAsync(MatchStatus? status = null)
+    public async Task<IEnumerable<MatchDto>> GetBoardAsync(MatchStatus? status = null, string? search = null)
     {
-        var matches = await _matchRepository.GetAllWithTeamsAsync(status);
+        var matches = await _matchRepository.GetAllWithTeamsAsync(status, search);
         return _mapper.Map<IEnumerable<MatchDto>>(matches);
     }
 
@@ -52,7 +52,7 @@ public class MatchService : IMatchService
 
     public async Task UpdateAsync(MatchFormDto dto)
     {
- 
+        ValidateBusinessRules(dto);
 
 
 
@@ -60,41 +60,26 @@ public class MatchService : IMatchService
 
 
 
-
-
-
-       ValidateBusinessRules(dto);
 
         var match = await _matchRepository.GetByIdAsync(dto.Id)
             ?? throw new KeyNotFoundException($"Match {dto.Id} not found.");
 
         _mapper.Map(dto, match);
         match.Date = dto.Date.ToUtcFromColombia();
-        await _matchRepository.UpdateAsync(match);
+ 
+
+
+
+
+
+       await _matchRepository.UpdateAsync(match);
     }
 
     public async Task DeactivateAsync(int id)
         => await _matchRepository.DeactivateAsync(id);
 
-
-
-
-
-
-
-
-
-
-
-
-
     private static void ValidateBusinessRules(MatchFormDto dto)
     {
-        if (dto.HomeTeamId == dto.AwayTeamId)
-            throw new InvalidOperationException("El equipo local y el visitante no pueden ser el mismo.");
-
-        if (dto.Date.ToUtcFromColombia() <= DateTime.UtcNow)
-            throw new InvalidOperationException("La fecha del partido debe ser futura.");
  
 
 
@@ -103,5 +88,15 @@ public class MatchService : IMatchService
 
 
 
-   }
+       if (dto.HomeTeamId == dto.AwayTeamId)
+            throw new InvalidOperationException("El equipo local y el visitante no pueden ser el mismo.");
+
+        if (dto.Date.ToUtcFromColombia() <= DateTime.UtcNow)
+            throw new InvalidOperationException("La fecha del partido debe ser futura.");
+    }
 }
+
+
+
+
+
