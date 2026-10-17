@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using GolBet.Entities.Common;
 using GolBet.Entities.Enums;
 
@@ -18,4 +18,7 @@ public class Bet : AuditableEntity
 
     public int MatchId { get; set; }
     public Match Match { get; set; } = null!;
+
+    public string UserId { get; set; } = null!;
+    public AppUser User { get; set; } = null!;
 }
